@@ -13,14 +13,13 @@ Parameters:
 fn main() {
   let args: Vec<String> = env::args().collect();
   let config = Config::build(&args).unwrap_or_else(|err| {
-    println!("Problem parsing arguments: {}", err);
-    println!("{USAGE}",);
+    eprintln!("Problem parsing arguments: {}", err);
+    eprintln!("{USAGE}",);
     process::exit(1);
   });
 
-  minigrep::prelude(&config);
   if let Err(err) = minigrep::run(config) {
-    println!("Application error: {}", err);
+    eprintln!("Application error: {}", err);
     process::exit(1);
   }
 }

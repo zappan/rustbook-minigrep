@@ -40,11 +40,6 @@ impl Config {
   }
 }
 
-pub fn prelude(config: &Config) {
-  print!("Searching for the string '{}'", config.search_for);
-  println!(" in file {}:", config.filepath);
-}
-
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   let file_content = fs::read_to_string(config.filepath)?;
 
@@ -55,7 +50,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   };
 
   for line in results {
-    println!("> {line}");
+    println!("{line}");
   }
 
   Ok(())
