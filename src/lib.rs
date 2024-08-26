@@ -24,13 +24,51 @@ impl Config {
   }
 }
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn prelude(config: &Config) {
   print!("Searching for the string '{}'", config.search_for);
-  println!(" in file {}", config.filepath);
+  println!(" in file {}:", config.filepath);
+}
 
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   let file_content = fs::read_to_string(config.filepath)?;
 
-  println!("within the file text:\n{}", file_content);
+  for line in search(&config.search_for, &file_content) {
+    println!("> {line}");
+  }
 
   Ok(())
+}
+
+pub fn search(search_for: &str, contents: &str) -> Vec<String> {
+  // let mut result = vec![];
+  let mut result = Vec::new();
+  for line in contents.lines() {
+    if line.contains(search_for) {
+      // technically, it'd be better, performance-wise, to use Vec<&str> here, but
+      // that introduces named/explicit lifetimes, which I may want to skip temporarily
+      result.push(line.to_string());
+    }
+  }
+  result
+}
+
+#[cfg(test)]
+mod tests {
+  use super::*;
+
+  #[test]
+  fn one_result() {
+    // (Note that the backslash after the opening double quote tells Rust not to put
+    // a newline character at the beginning of the contents of this string literal)
+    let search_for = "duct";
+    let contents = "\
+Rust:
+safe, fast, productive.
+Pick three.";
+
+    assert_eq!(
+      vec!["safe, fast, productive."],
+      search(search_for, contents)
+    );
+  }
 }

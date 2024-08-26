@@ -13,6 +13,7 @@ fn main() {
     process::exit(1);
   });
 
+  minigrep::prelude(&config);
   if let Err(err) = minigrep::run(config) {
     println!("Application error: {}", err);
     process::exit(1);
