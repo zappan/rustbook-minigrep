@@ -1,3 +1,6 @@
+use std::error::Error;
+use std::fs;
+
 #[derive(Debug)]
 pub struct Config {
   search_for: String,
@@ -19,4 +22,15 @@ impl Config {
       filepath,
     })
   }
+}
+
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+  print!("Searching for the string '{}'", config.search_for);
+  println!(" in file {}", config.filepath);
+
+  let file_content = fs::read_to_string(config.filepath)?;
+
+  println!("within the file text:\n{}", file_content);
+
+  Ok(())
 }
