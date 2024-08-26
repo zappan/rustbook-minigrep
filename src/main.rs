@@ -3,7 +3,12 @@ use std::process;
 
 use minigrep::{self, Config};
 
-const USAGE: &str = "Usage:\n$ minigrep PATTERN FILE";
+const USAGE: &str = "\
+Usage:
+$ minigrep [-i] PATTERN FILE
+
+Parameters:
+ -i  case-insensitive search";
 
 fn main() {
   let args: Vec<String> = env::args().collect();
