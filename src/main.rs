@@ -11,8 +11,12 @@ Parameters:
  -i  case-insensitive search";
 
 fn main() {
-  let args: Vec<String> = env::args().collect();
-  let config = Config::build(&args).unwrap_or_else(|err| {
+  // ## OLD: collect()-ing args into a vector, borrowed to the build()
+  // let args: Vec<String> = env::args().collect();
+  // let config = Config::build(&args).unwrap_or_else(|err| {..}
+
+  // ## Instead, we're now moving args into the build function
+  let config = Config::build(env::args()).unwrap_or_else(|err| {
     eprintln!("Problem parsing arguments: {}", err);
     eprintln!("{USAGE}",);
     process::exit(1);

@@ -9,25 +9,27 @@ pub struct Config {
 }
 
 impl Config {
-  pub fn build(args: &[String]) -> Result<Config, &str> {
-    let has_switch_i = args[1] == "-i";
+  pub fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+    args.next(); // skip the path-to-executable
 
-    let required_args_count = if has_switch_i { 4 } else { 3 };
-    if args.len() < required_args_count {
-      return Err("not enough arguments");
+    let mut has_switch_i = false;
+    let mut params = Vec::new();
+
+    while let Some(arg) = args.next() {
+      if arg == "-i" {
+        has_switch_i = true;
+      } else {
+        params.push(arg);
+      }
     }
 
-    let args = if has_switch_i {
-      &args[2..4]
-    } else {
-      &args[1..3]
-    };
+    const REQUIRED_PARAMS_COUNT: usize = 2;
+    if params.len() != REQUIRED_PARAMS_COUNT {
+      return Err("invalid arguments");
+    }
 
-    // As you become more experienced with Rust, it’ll be easier to start with the
-    // most efficient solution, but for now, it’s perfectly acceptable to call clone.
-    let search_for = args[0].clone();
-    let filepath = args[1].clone();
-
+    let search_for = params.remove(0);
+    let filepath = params.remove(0);
     // We don’t care about the value of the environment variable, just whether it’s set or unset,
     // so we’re checking is_ok() rather than using unwrap, expect, or any of the other methods
     let ignore_case = has_switch_i || std::env::var("IGNORE_CASE").is_ok();
