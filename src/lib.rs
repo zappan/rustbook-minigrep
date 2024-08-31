@@ -1,3 +1,8 @@
+//! # Minigrep
+//!
+//! `minigrep` is a search utility to search for lines containing a given string
+//! withing the given text. It offers case sensitive and case insensitive search.
+
 use std::error::Error;
 use std::fs;
 
@@ -58,6 +63,22 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
+/// Performs a case-sensitive search, finding lines containing a given search term
+/// within the text contents.
+///
+/// # Examples
+///
+/// ```
+/// let result = minigrep::search("you", "\
+/// Hello world
+/// You wonderful world
+/// the sun is shining
+/// just for you
+/// ");
+///
+/// let expected_res = vec!["just for you"];
+/// assert_eq!(result, expected_res);
+/// ```
 pub fn search<'a>(search_for: &str, contents: &'a str) -> Vec<&'a str> {
   // // ## The initial approach with a for loop:
   // // let mut result = vec![];
@@ -83,6 +104,22 @@ pub fn search<'a>(search_for: &str, contents: &'a str) -> Vec<&'a str> {
   // ## because we wouldn’t have to manage concurrent access to the results vector
 }
 
+/// Performs a case-insensitive search, finding lines containing a given search term
+/// within the text contents.
+///
+/// # Examples
+///
+/// ```
+/// let result = minigrep::search_case_insensitive("you", "\
+/// Hello world
+/// You wonderful world
+/// the sun is shining
+/// just for you
+/// ");
+///
+/// let expected_res = vec!["You wonderful world", "just for you"];
+/// assert_eq!(result, expected_res);
+/// ```
 pub fn search_case_insensitive<'a>(search_for: &str, contents: &'a str) -> Vec<&'a str> {
   // // While to_lowercase will handle basic Unicode, it won’t be 100% accurate.
   // // If we were writing a real application, we’d want to do a bit more work here...
