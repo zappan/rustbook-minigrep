@@ -45,7 +45,7 @@ impl Config {
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   let file_content = fs::read_to_string(config.filepath)?;
 
-  let results: Vec<String> = if config.ignore_case {
+  let results: Vec<&str> = if config.ignore_case {
     search_case_insensitive(&config.search_for, &file_content)
   } else {
     search(&config.search_for, &file_content)
@@ -58,30 +58,48 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
   Ok(())
 }
 
-pub fn search(search_for: &str, contents: &str) -> Vec<String> {
-  // let mut result = vec![];
-  let mut result = Vec::new();
-  for line in contents.lines() {
-    if line.contains(search_for) {
-      // technically, it'd be better, performance-wise, to use Vec<&str> here, but
-      // that introduces named/explicit lifetimes, which I may want to skip temporarily
-      result.push(line.to_string());
-    }
-  }
-  result
+pub fn search<'a>(search_for: &str, contents: &'a str) -> Vec<&'a str> {
+  // // ## The initial approach with a for loop:
+  // // let mut result = vec![];
+  // let mut result = Vec::new();
+  // for line in contents.lines() {
+  //   if line.contains(search_for) {
+  //     // technically, it'd be better, performance-wise, to use Vec<&str> here, but
+  //     // that introduces named/explicit lifetimes, which I may want to skip temporarily
+  //     result.push(line.to_string());
+  //   }
+  // }
+  // result
+
+  // ## Rewriting the above approach with iteartors using iterator adaptor methods:
+  contents
+    .lines()
+    .filter(|line| line.contains(search_for))
+    .collect() // collecting lines into a(noter) vector
+
+  // ## Doing so also lets us avoid having a mutable intermediate results vector.
+  // ## The functional programming style prefers to minimize the amount of mutable state to make code clearer.
+  // ## Removing the mutable state might enable a future enhancement to make searching happen in parallel,
+  // ## because we wouldn’t have to manage concurrent access to the results vector
 }
 
-pub fn search_case_insensitive(search_for: &str, contents: &str) -> Vec<String> {
-  // While to_lowercase will handle basic Unicode, it won’t be 100% accurate.
-  // If we were writing a real application, we’d want to do a bit more work here...
+pub fn search_case_insensitive<'a>(search_for: &str, contents: &'a str) -> Vec<&'a str> {
+  // // While to_lowercase will handle basic Unicode, it won’t be 100% accurate.
+  // // If we were writing a real application, we’d want to do a bit more work here...
+  // let search_for_lowercased = search_for.to_lowercase();
+  // let mut result = Vec::new();
+  // for line in contents.lines() {
+  //   if line.to_lowercase().contains(&search_for_lowercased) {
+  //     result.push(line.to_string())
+  //   }
+  // }
+  // result
+
   let search_for_lowercased = search_for.to_lowercase();
-  let mut result = Vec::new();
-  for line in contents.lines() {
-    if line.to_lowercase().contains(&search_for_lowercased) {
-      result.push(line.to_string())
-    }
-  }
-  result
+  contents
+    .lines()
+    .filter(|line| line.to_lowercase().contains(&search_for_lowercased))
+    .collect()
 }
 
 #[cfg(test)]
